@@ -15,18 +15,18 @@ if (room) {
     document.getElementById('room').value = room;
     document.getElementById('room').disabled = true;
 }
- 
+
 document.querySelector('#submitBtn').onclick = (e) => {
     e.preventDefault();
     let room = document.getElementById('room').value;
     let name = document.getElementById('Name').value;
     socket.emit('join', ({ name, room }));
 }
- 
+
 socket.on('error', error => {
     document.getElementById('error').innerText = "choose another room " + error;
 })
- 
+
 socket.on('success', () => {
     $('#join').style.display = 'none';
     $('#game').style.display = 'flex';
@@ -114,7 +114,7 @@ socket.on('piece-move', data => {
     switchPlayer();
     isCheck(box.id);
     checkWinning();
-    removeSuggestion();   
+    removeSuggestion();
 })
 
 function checkWinning() {
