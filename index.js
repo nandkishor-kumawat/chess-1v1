@@ -43,7 +43,7 @@ io.on('connect', (socket) => {
 
     socket.on('select-piece', Id => {
         const user = getUser(socket.id);
-        // socket.broadcast.emit('select-piece', Id);
+        // socket.broadcast.to(user.room).emit('select-piece', Id);
         io.to(user.room).emit('select-piece', Id);
     })
 
