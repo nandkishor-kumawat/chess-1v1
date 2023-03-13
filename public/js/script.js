@@ -20,6 +20,7 @@ document.querySelector('#submitBtn').onclick = (e) => {
     e.preventDefault();
     let room = document.getElementById('room').value;
     let name = document.getElementById('Name').value;
+    if(!room||!name)return;
     socket.emit('join', ({ name, room }));
 }
 
