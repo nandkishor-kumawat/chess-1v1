@@ -25,10 +25,18 @@
                     <h3>Enter room</h3>
                 </label>
                 <input type="text" name="room" id="room" required>
+                
+                <span>play as: </span> 
+                <label for="white">white</label>
+                <input type="radio" name="player" id="white">
+                <label for="black">black</label>
+                <input type="radio" name="player" id="black" >
                 <input type="button" id="submitBtn" value="Enter to ChatRoom">
             </div>
             <p id="error"></p>
         </section>
+
+
         <section id="game">
             <div class="settings">
                 <div>Player: <span id="currentPlayer" class="white"></span></div>
