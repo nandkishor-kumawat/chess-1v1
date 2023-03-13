@@ -11,23 +11,21 @@
     border: 1px solid #007bff;
 }
 
-input {
+input[type=text],
+input[type=button] {
     width: 100%;
     border-radius: 5px;
     padding: 10px;
     margin: 15px auto;
     font-size: 22px;
     transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out;
+    border: 1px solid #52a6ff;
 }
 
 input:focus {
     border-color: #52a6ff;
     outline: 0;
     box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
-}
-
-input {
-    border: 1px solid #52a6ff;
 }
 
 #submitBtn {
@@ -50,10 +48,12 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
 }
-main{
+
+main {
     display: flex;
     flex-direction: column;
 }
+
 #game {
     display: none;
     flex-direction: column;
