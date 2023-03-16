@@ -1,9 +1,9 @@
 const socket = io();
 
-
 let board = document.getElementById("board")
 const pcs = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
 let player = 'white';
+let playAs = '';
 let selectedPiece = '';
 let hasPiece = false;
 let check = false;
@@ -11,24 +11,35 @@ let suggestion = true;
 let checkMoves = [];
 
 let room = new URLSearchParams(location.search).get('room');
+let play = new URLSearchParams(location.search).get('player');
+
 if (room) {
     document.getElementById('room').value = room;
     document.getElementById('room').disabled = true;
+}
+
+if (play) {
+    document.getElementById(play).checked = true;
+    document.querySelectorAll('input[name=player]').forEach(ele => ele.disabled = true)
 }
 
 document.querySelector('#submitBtn').onclick = (e) => {
     e.preventDefault();
     let room = document.getElementById('room').value;
     let name = document.getElementById('Name').value;
-    if (!room || !name) return;
-    socket.emit('join', ({ name, room }));
+    let playAs = document.querySelector('input[type=radio]:checked');
+    if (!room || !name || !playAs) return;
+    socket.emit('join', ({ name, room, playAs: playAs.id }));
 }
 
 socket.on('error', error => {
     document.getElementById('error').innerText = "choose another room " + error;
 });
 
-socket.on('success', () => {
+socket.on('success', (p) => {
+    playAs = p;
+    setupBoard();
+    intiEvents();
     $('#join').style.display = 'none';
     $('#game').style.display = 'flex';
     console.log('success');
@@ -56,51 +67,55 @@ function setupBoard() {
             board.appendChild(div);
         }
     }
-} setupBoard();
+    if (playAs === 'black') board.style.setProperty('transform', 'rotate(180deg)')
+}
 
-document.querySelectorAll('.box').forEach(box => {
-    box.onclick = () => {
-        if (box.classList.contains('selected')) {
-            removeSelection();
-            socket.emit('deselect-piece');
-            return;
-        }
-
-        if (!selectedPiece) {
-            if (check) findCheckMoves(box)
-            if (box.getAttribute('piece').indexOf(player) >= 0) {
-                selectPiece(box);
-                socket.emit('select-piece', box.id);
-            }
-        } else if (selectedPiece) {
-            let a = selectedPiece.getAttribute('piece').split('-');
-            let color = a[0];
-            let type = a[1];
-
-            if (box.getAttribute('piece').indexOf(color) >= 0) {
+function intiEvents() {
+    document.querySelectorAll('.box').forEach(box => {
+        box.onclick = () => {
+            if (player !== playAs) return;
+            if (box.classList.contains('selected')) {
                 removeSelection();
-                selectPiece(box)
                 socket.emit('deselect-piece');
-                socket.emit('select-piece', box.id);
-            } else if (box.classList.contains('legal')) {
-                setPiece(box, color, type)
-                switchPlayer();
-                isCheck(box.id);
-                delPiece();
-                checkWinning()
-                removeSuggestion();
-                socket.emit('piece-move', { boxId: box.id, color, type, selId: selectedPiece.id });
+                return;
+            }
+
+            if (!selectedPiece) {
+                if (check) findCheckMoves(box);
+                if (box.getAttribute('piece').indexOf(player) >= 0) {
+                    selectPiece(box);
+                    socket.emit('select-piece', box.id);
+                }
+            } else if (selectedPiece) {
+                let a = selectedPiece.getAttribute('piece').split('-');
+                let color = a[0];
+                let type = a[1];
+
+                if (box.getAttribute('piece').indexOf(player) >= 0) {
+                    removeSelection();
+                    selectPiece(box);
+                    socket.emit('deselect-piece');
+                    socket.emit('select-piece', box.id);
+                } else if (box.classList.contains('legal')) {
+                    setPiece(box, color, type)
+                    switchPlayer();
+                    isCheck(box.id);
+                    delPiece();
+                    checkWinning();
+                    removeSuggestion();
+                    socket.emit('piece-move', { boxId: box.id, color, type, selId: selectedPiece.id });
+                }
             }
         }
-    }
-});
+    });
+}
 
 socket.on('toggle-suggestion', () => {
-    suggestion = suggestion ? false : true
+    suggestion = suggestion ? false : true;
     document.querySelectorAll('.legal').forEach(e => {
-        suggestion ? e.classList.add('show') : e.classList.remove('show')
+        suggestion ? e.classList.add('show') : e.classList.remove('show');
     });
-    $('#suggest').checked = suggestion
+    $('#suggest').checked = suggestion;
 });
 
 socket.on('deselect-piece', () => removeSelection());
@@ -349,7 +364,7 @@ $('#suggest').onchange = () => {
 }
 
 function switchPlayer() {
-    // player = (player === 'white') ? 'black' : 'white';
+    // playAs = (playAs === 'white') ? 'black' : 'white';
     if (player === 'white') {
         player = 'black';
     }
