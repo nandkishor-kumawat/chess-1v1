@@ -26,13 +26,13 @@ document.querySelector('#submitBtn').onclick = (e) => {
 
 socket.on('error', error => {
     document.getElementById('error').innerText = "choose another room " + error;
-})
+});
 
 socket.on('success', () => {
     $('#join').style.display = 'none';
     $('#game').style.display = 'flex';
     console.log('success');
-})
+});
 
 function setupBoard() {
     board.innerHTML = '';
@@ -56,7 +56,7 @@ function setupBoard() {
             board.appendChild(div);
         }
     }
-} setupBoard()
+} setupBoard();
 
 document.querySelectorAll('.box').forEach(box => {
     box.onclick = () => {
@@ -93,7 +93,7 @@ document.querySelectorAll('.box').forEach(box => {
             }
         }
     }
-})
+});
 
 socket.on('toggle-suggestion', () => {
     suggestion = suggestion ? false : true
@@ -116,7 +116,7 @@ socket.on('piece-move', data => {
     isCheck(box.id);
     checkWinning();
     removeSuggestion();
-})
+});
 
 function checkWinning() {
     if (!$('[piece=' + player + '-king]')) {
