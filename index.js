@@ -32,33 +32,33 @@ io.on('connect', (socket) => {
         };
         socket.join(user.room);
         socket.emit('success');
-    })
+    });
 
     socket.on('deselect-piece', () => {
         const user = getUser(socket.id);
         socket.to(user.room).emit('deselect-piece');
-    })
+    });
 
     socket.on('select-piece', Id => {
         const user = getUser(socket.id);
         socket.to(user.room).emit('select-piece', Id);
-    })
+    });
 
     socket.on('toggle-suggestion', () => {
         const user = getUser(socket.id);
         socket.to(user.room).emit('toggle-suggestion');
-    })
+    });
 
     socket.on('piece-move', data => {
         const user = getUser(socket.id);
         socket.to(user.room).emit('piece-move', data)
-    })
+    });
 
     socket.on('disconnect', () => {
         console.log(socket.id + ' left');
         removeUser(socket.id)
-    })
-})
+    });
+});
 
 
 
