@@ -22,8 +22,8 @@ app.get('/', (req, res) => {
 
 io.on('connect', (socket) => {
     console.log('new connection')
-    socket.on('join', ({ name, room }) => {
-        const { error, user } = addUser({ id: socket.id, name, room });
+    socket.on('join', ({ name, room ,playAs}) => {
+        const { error, user } = addUser({ id: socket.id, name, room, playAs });
 
         // if (error) return callback(error);
         if (error) {
@@ -31,7 +31,7 @@ io.on('connect', (socket) => {
             return;
         };
         socket.join(user.room);
-        socket.emit('success');
+        socket.emit('success',user.playAs);
     });
 
     socket.on('deselect-piece', () => {
