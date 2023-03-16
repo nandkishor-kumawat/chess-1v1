@@ -211,7 +211,7 @@ function findLegalMoves(nextMoves) {
     for (var move of nextMoves) {
         var box = $('#box-' + move[0] + '-' + move[1]);
         box.classList.add('legal');
-        if (suggestion) box.classList.add('show')
+        if (suggestion) box.classList.add('show');
     }
 }
 
