@@ -20,7 +20,7 @@ document.querySelector('#submitBtn').onclick = (e) => {
     e.preventDefault();
     let room = document.getElementById('room').value;
     let name = document.getElementById('Name').value;
-    if(!room||!name)return;
+    if (!room || !name) return;
     socket.emit('join', ({ name, room }));
 }
 
@@ -347,6 +347,7 @@ $('#suggest').onchange = () => {
     $('#suggest').checked = suggestion
     socket.emit('toggle-suggestion');
 }
+
 function switchPlayer() {
     // player = (player === 'white') ? 'black' : 'white';
     if (player === 'white') {
@@ -358,7 +359,6 @@ function switchPlayer() {
     $('#currentPlayer').className = player;
     // console.log(player)
 }
-
 
 function $(cs) {
     return document.querySelector(cs);
