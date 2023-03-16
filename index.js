@@ -32,31 +32,26 @@ io.on('connect', (socket) => {
         };
         socket.join(user.room);
         socket.emit('success');
-        // console.log(name + ' ' + room + ' joined');
     })
 
     socket.on('deselect-piece', () => {
         const user = getUser(socket.id);
-        // socket.broadcast.emit('deselect-piece');
-        io.to(user.room).emit('deselect-piece');
+        socket.to(user.room).emit('deselect-piece');
     })
 
     socket.on('select-piece', Id => {
         const user = getUser(socket.id);
-        // socket.broadcast.to(user.room).emit('select-piece', Id);
-        io.to(user.room).emit('select-piece', Id);
+        socket.to(user.room).emit('select-piece', Id);
     })
 
     socket.on('toggle-suggestion', () => {
         const user = getUser(socket.id);
-        // socket.broadcast.emit('toggle-suggestion');
-        io.to(user.room).emit('toggle-suggestion');
+        socket.to(user.room).emit('toggle-suggestion');
     })
 
     socket.on('piece-move', data => {
         const user = getUser(socket.id);
-        // socket.broadcast.emit('piece-move', data);
-        io.to(user.room).emit('piece-move', data)
+        socket.to(user.room).emit('piece-move', data)
     })
 
     socket.on('disconnect', () => {
