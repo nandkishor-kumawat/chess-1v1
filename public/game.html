@@ -20,11 +20,11 @@
                 <label for="Name">
                     <h3>Enter your Name to chat</h3>
                 </label>
-                <input type="text" name="name" id="Name" required>
+                <input type="text" name="name" id="Name" value="s" required>
                 <label for="room">
                     <h3>Enter room</h3>
                 </label>
-                <input type="text" name="room" id="room" required>
+                <input type="text" name="room" id="room" value="s" required>
                 
                 <span>play as: </span> 
                 <label for="white">white</label>
@@ -36,7 +36,9 @@
             <p id="error"></p>
         </section>
 
-
+        <section id="wait">
+            
+        </section>
         <section id="game">
             <div class="settings">
                 <div>Player: <span id="currentPlayer" class="white"></span></div>
@@ -44,14 +46,14 @@
                 <!-- <button id="undo">undo</button>
         <button id="redo">redo</button> -->
             </div>
-            <div id="board"> </div>
+            <div id="board"></div>
         </section>
     </main>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script> -->
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/script.js"></script>
