@@ -54,7 +54,7 @@ function setupBoard() {
             div.classList.add('box');
             div.id = `box-${i}-${j}`;
 
-            div.classList.add(((i + j) % 2 !== 0) ? 'light' : 'dark');
+            div.classList.add(((i + j) % 2 === 0) ? 'light' : 'dark');
 
             if (i === 0 || i === 7) {
                 div.setAttribute('piece', `${i === 0 ? 'black' : 'white'}-${pcs[j]}`);
