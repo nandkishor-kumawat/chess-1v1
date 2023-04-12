@@ -21,17 +21,19 @@ app.get('/', (req, res) => {
 });
 
 io.on('connect', (socket) => {
-    console.log('new connection')
+    console.log('new connection');
+    
     socket.on('join', ({ name, room ,playAs}) => {
         const { error, user } = addUser({ id: socket.id, name, room, playAs });
 
-        // if (error) return callback(error);
         if (error) {
             socket.emit('error', error);
             return;
         };
+
         socket.join(user.room);
         socket.emit('success',user.playAs);
+        io.to(user.room).emit('newJoin', getUsersInRoom(user.room));
     });
 
     socket.on('deselect-piece', () => {
@@ -51,12 +53,14 @@ io.on('connect', (socket) => {
 
     socket.on('piece-move', data => {
         const user = getUser(socket.id);
-        socket.to(user.room).emit('piece-move', data)
+        socket.to(user.room).emit('piece-move', data);
     });
 
     socket.on('disconnect', () => {
         console.log(socket.id + ' left');
-        removeUser(socket.id)
+        const user = getUser(socket.id);
+        if(user)socket.to(user.room).emit('player-left');
+        removeUser(socket.id);
     });
 });
 
@@ -64,4 +68,4 @@ io.on('connect', (socket) => {
 
 
 
-server.listen(PORT, () => console.log(`server started on http://localhost:${PORT}/`))
+server.listen(PORT, () => console.log(`server started on http://localhost:${PORT}/`));

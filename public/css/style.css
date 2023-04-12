@@ -58,32 +58,37 @@ main {
     display: none;
     flex-direction: column;
     gap: 10px;
+    border: 10px solid #6e6060;
+}
+
+
+#game .players > div{
+    width: 50%;
+}
+
+#game .players > div.playing{
+    background-color: #dbbcbc;
 }
 
 .settings {
     display: flex;
-    align-items: center;
     gap: 10px;
+    box-shadow: 0 10px #6e6060;
 }
 
-.settings>div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
-#currentPlayer {
+.players span {
     display: inline-block;
     width: calc((var(--size)) / 10);
     height: calc((var(--size)) / 10);
     background-size: cover !important;
 }
 
-#currentPlayer.white {
+.players span.white {
     background: url(../img/wk.png);
 }
 
-#currentPlayer.black {
+.players span.black {
     background: url(../img/bk.png);
 }
 
@@ -126,7 +131,7 @@ main {
     display: grid;
     grid-template-columns: repeat(8, calc((var(--size)) / 8));
     grid-template-rows: repeat(8, calc((var(--size)) / 8));
-    box-shadow: 0 0 0 10px rgb(0 0 0 /25%);
+    /* box-shadow: 0 0 0 10px rgb(0 0 0 /25%); */
 }
 
 .legal.show {

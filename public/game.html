@@ -10,6 +10,8 @@
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/loading.css">
+
 </head>
 
 <body>
@@ -25,39 +27,57 @@
                     <h3>Enter room</h3>
                 </label>
                 <input type="text" name="room" id="room" value="s" required>
-                
-                <span>play as: </span> 
+
+                <span>play as: </span>
                 <label for="white">white</label>
                 <input type="radio" name="player" id="white">
                 <label for="black">black</label>
-                <input type="radio" name="player" id="black" >
+                <input type="radio" name="player" id="black">
                 <input type="button" id="submitBtn" value="Enter to ChatRoom">
             </div>
             <p id="error"></p>
         </section>
 
         <section id="wait">
-            
+            <input type="text" id="gameLink">
+            <p>waiting for player</p>
+            <span class="loader-11"></span>
         </section>
         <section id="game">
-            <div class="settings">
-                <div>Player: <span id="currentPlayer" class="white"></span></div>
-                <div><label for="suggest">suggestions</label><input type="checkbox" name="" id="suggest" checked></div>
-                <!-- <button id="undo">undo</button>
-        <button id="redo">redo</button> -->
+            <div class="d-flex flex-column settings">
+                <!-- <div class="input-group">
+                    <span class="input-group-text">users</span>
+                    <input type="text" class="form-control">
+                </div> -->
+                <div class="d-flex players">
+                    <div class="d-flex align-items-center playing" id="player-white">
+                        <span id="" class="white"></span>
+                        <div class="name mx-2"></div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-end" id="player-black">
+                        <div class="name mx-2"></div>
+                        <span id="" class="black"></span>
+                    </div>
+                </div>
             </div>
             <div id="board"></div>
         </section>
     </main>
 
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-        crossorigin="anonymous"></script> -->
+        crossorigin="anonymous"></script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/script.js"></script>
     <!-- <script src="/script.js"></script> -->
+    <script>
+        window.onbeforeunload = ()=>{
+        let confirm = confirm('Are you sure to exit?');
+        if(confirm)location = '/';
+    }
+    </script>
 </body>
 
 </html>

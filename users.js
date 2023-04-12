@@ -9,7 +9,7 @@ const addUser = ({ id, name, room, playAs }) => {
   const existingUser = users.filter((user) => user.room === room).length >= 2
 
   // if(!name || !room) return { error: 'Username and room are required.' };
-  if (existingUser) return { error: 'Username is taken.' };
+  if (existingUser) return { error: 'This room is full. Please choose another room' };
 
   const user = { id, name, room, playAs };
 

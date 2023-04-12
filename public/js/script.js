@@ -9,6 +9,7 @@ let hasPiece = false;
 let check = false;
 let suggestion = true;
 let checkMoves = [];
+localStorage.removeItem('user');
 
 let room = new URLSearchParams(location.search).get('room');
 let play = new URLSearchParams(location.search).get('player');
@@ -19,8 +20,9 @@ if (room) {
 }
 
 if (play) {
+    play = play === 'white' ? 'black' : 'white';
     document.getElementById(play).checked = true;
-    document.querySelectorAll('input[name=player]').forEach(ele => ele.disabled = true)
+    document.querySelectorAll('input[name=player]').forEach(ele => ele.disabled = true);
 }
 
 document.querySelector('#submitBtn').onclick = (e) => {
@@ -29,7 +31,11 @@ document.querySelector('#submitBtn').onclick = (e) => {
     let name = document.getElementById('Name').value;
     let playAs = document.querySelector('input[type=radio]:checked');
     if (!room || !name || !playAs) return;
+    localStorage.setItem('user', JSON.stringify({ name, room, playAs: playAs.id }));
     socket.emit('join', ({ name, room, playAs: playAs.id }));
+    $('#gameLink').value = location.host + '/?room=' + room + '&player=' + playAs.id
+    // socket.emit('newJoin', localStorage.getItem('user'));
+    $('#player-' + playAs.id + ' .name').innerText = name;
 }
 
 socket.on('error', error => {
@@ -41,9 +47,24 @@ socket.on('success', (p) => {
     setupBoard();
     intiEvents();
     $('#join').style.display = 'none';
+    $('#wait').style.display = 'flex';
     $('#game').style.display = 'flex';
     console.log('success');
 });
+
+socket.on('newJoin', (users) => {
+    console.log(users)
+    users.forEach(user => {
+        $(`#player-${user.playAs} .name`).innerText = user.playAs === playAs ? '(You) ' + user.name : user.name;
+    });
+    if (users.length === 2) $('#wait').style.display = 'none';
+});
+
+socket.on('player-left', () => {
+    alert('Opponent resigned the game. You won!');
+    location = '/';
+})
+
 
 function setupBoard() {
     board.innerHTML = '';
@@ -353,28 +374,31 @@ function outOfBounds(i, j) {
     return (i < 0 || i >= 8 || j < 0 || j >= 8);
 }
 
-$('#suggest').onchange = () => {
+// $('#suggest').onchange = () => {
 
-    suggestion = suggestion ? false : true
-    document.querySelectorAll('.legal').forEach(e => {
-        suggestion ? e.classList.add('show') : e.classList.remove('show')
-    });
-    $('#suggest').checked = suggestion
-    socket.emit('toggle-suggestion');
-}
+//     suggestion = suggestion ? false : true
+//     document.querySelectorAll('.legal').forEach(e => {
+//         suggestion ? e.classList.add('show') : e.classList.remove('show')
+//     });
+//     $('#suggest').checked = suggestion
+//     socket.emit('toggle-suggestion');
+// }
 
 function switchPlayer() {
-    // playAs = (playAs === 'white') ? 'black' : 'white';
+
+    $('#player-' + player).classList.remove('playing');
     if (player === 'white') {
         player = 'black';
     }
     else {
         player = 'white'
     }
-    $('#currentPlayer').className = player;
+    $('#player-' + player).classList.add('playing');
     // console.log(player)
 }
 
 function $(cs) {
     return document.querySelector(cs);
 }
+
+
