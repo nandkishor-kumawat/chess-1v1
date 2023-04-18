@@ -6,8 +6,8 @@
 
 .join {
     max-width: 580px;
-    padding: 8px 30px;
-    margin: 30px auto;
+    padding: 8px 15px;
+    margin: 15px;
     border: 1px solid #007bff;
     border-radius: 8px;
 }
@@ -16,9 +16,8 @@ input[type=text],
 input[type=button] {
     width: 100%;
     border-radius: 5px;
-    padding: 10px;
+    padding: 10px 6px;
     margin: 8px auto;
-    font-size: 22px;
     transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out;
     border: 1px solid #52a6ff;
 }
