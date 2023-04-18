@@ -120,7 +120,7 @@ function intiEvents() {
                 } else if (box.classList.contains('legal')) {
                     setPiece(box, color, type)
                     switchPlayer();
-                    isCheck(box.id);
+                    // isCheck(box.id);
                     delPiece();
                     checkWinning();
                     removeSuggestion();
@@ -149,7 +149,7 @@ socket.on('piece-move', data => {
     delPiece(document.getElementById(data.selId));
 
     switchPlayer();
-    isCheck(box.id);
+    // isCheck(box.id);
     checkWinning();
     removeSuggestion();
 });
