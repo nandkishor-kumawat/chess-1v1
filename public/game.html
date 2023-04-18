@@ -19,14 +19,10 @@
     <main>
         <section id="join">
             <div class="join">
-                <label for="Name">
-                    <h3>Enter your Name</h3>
-                </label>
-                <input type="text" name="name" id="Name" value="s" required>
-                <label for="room">
-                    <h3>Enter room</h3>
-                </label>
-                <input type="text" name="room" id="room" value="s" required>
+                <label for="Name">Enter your Name</label>
+                <input type="text" name="name" id="Name" value="" required>
+                <label for="room">Enter room</label>
+                <input type="text" name="room" id="room" value="" required>
 
                 <span>play as: </span>
                 <label for="white">white</label>
@@ -73,10 +69,10 @@
     <script src="./js/script.js"></script>
     <!-- <script src="/script.js"></script> -->
     <script>
-        window.onbeforeunload = ()=>{
-        let confirm = confirm('Are you sure to exit?');
-        if(confirm)location = '/';
-    }
+        window.onbeforeunload = () => {
+            let confirm = confirm('Are you sure to exit?');
+            if (confirm) location = '/';
+        }
     </script>
 </body>
 
