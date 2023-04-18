@@ -17,7 +17,7 @@ input[type=button] {
     width: 100%;
     border-radius: 5px;
     padding: 10px;
-    margin: 5px auto;
+    margin: 8px auto;
     font-size: 22px;
     transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out;
     border: 1px solid #52a6ff;
