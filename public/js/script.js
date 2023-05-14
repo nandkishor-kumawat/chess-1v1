@@ -61,8 +61,9 @@ socket.on('newJoin', (users) => {
 });
 
 socket.on('player-left', () => {
-    alert('Opponent resigned the game. You won!');
-    location = '/';
+    // alert('Opponent resigned the game. You won!');
+    // location = '/';
+    console.log('user left')
 })
 
 
