@@ -11,6 +11,21 @@ let suggestion = true;
 let checkMoves = [];
 localStorage.removeItem('user');
 
+let historyMoves = [];
+let moveNumber = 0;
+let checker = null;
+let whiteCaptured = [];
+let blackCaptured = [];
+let captured = [];
+let promotion = {
+    state: false,
+    pieces: ['queen', 'bishop', 'knight', 'rook'],
+    promote: null
+}
+
+
+
+
 let room = new URLSearchParams(location.search).get('room');
 let play = new URLSearchParams(location.search).get('player');
 
@@ -53,7 +68,6 @@ socket.on('success', (p) => {
 });
 
 socket.on('newJoin', (users) => {
-    console.log(users)
     users.forEach(user => {
         $(`#player-${user.playAs} .name`).innerText = user.playAs === playAs ? '(You) ' + user.name : user.name;
     });
@@ -94,7 +108,7 @@ function setupBoard() {
 
 function intiEvents() {
     document.querySelectorAll('.box').forEach(box => {
-        box.onclick = () => {
+        box.onclick = async() => {
             if (player !== playAs) return;
             if (box.classList.contains('selected')) {
                 removeSelection();
@@ -119,10 +133,12 @@ function intiEvents() {
                     socket.emit('deselect-piece');
                     socket.emit('select-piece', box.id);
                 } else if (box.classList.contains('legal')) {
+                    if (isPromoting(box, color, type)) await promote(box, color, type);
                     setPiece(box, color, type)
                     switchPlayer();
-                    // isCheck(box.id);
+                    isCheck(box.id);
                     delPiece();
+                    // addCaptured(move.curr);
                     checkWinning();
                     removeSuggestion();
                     socket.emit('piece-move', { boxId: box.id, color, type, selId: selectedPiece.id });
@@ -163,6 +179,119 @@ function checkWinning() {
     }
 }
 
+function isKingInCheck(box) {
+    document.querySelectorAll('.box').forEach(ele => ele.classList.remove('check'));
+    let hasPlaced = false;
+    let selectRemove = false;
+    let isKing = {
+        placeRemoved: false,
+        attr: null,
+        sudoattr: false,
+
+    };
+
+
+    let king = $(`[piece = ${player}-king]`);
+    let kingPos = getPos(king.id);
+    let opponentMoves = [];
+
+
+    if ((selectedPiece.id === king.id)) {
+        if (box.classList.contains('placed')) {
+            box.classList.remove('placed');
+            isKing.placeRemoved = true;
+            isKing.attr = box.getAttribute('piece');
+            box.setAttribute('piece', player + '-' + player);
+        } else {
+            // attr = box.getAttribute('piece');
+            box.setAttribute('piece', player + '-' + player);
+            isKing.sudoattr = true;
+        }
+    } else {
+        if (box.classList.contains('placed')) hasPlaced = true;
+        box.classList.add('placed');
+    }
+    selectedPiece.classList.remove('placed');
+    selectRemove = true;
+
+
+    let nextChecker = [];
+
+    let allPieces = Array.from(document.querySelectorAll(`[piece^=${player === 'white' ? 'black' : 'white'}]`));
+
+    // console.log(allPieces)
+
+    Array.from(allPieces).forEach(piece => {
+        try {
+            const pieceMoves = getMoves(piece, true);
+            // console.log(JSON.stringify(pieceMoves), piece);
+            opponentMoves = [...opponentMoves, ...pieceMoves];
+
+            if (JSON.stringify(pieceMoves).includes(JSON.stringify(kingPos))) nextChecker.push(piece);
+        } catch (e) {
+            console.log(piece);
+        }
+    });
+
+    // opponentMoves = [...new Set(opponentMoves.map(JSON.stringify))].map(JSON.parse);
+
+    opponentMoves.forEach(([i, j]) => $('#box' + '-' + i + '-' + j).classList.add('check'));
+
+    // console.log(JSON.stringify(opponentMoves));
+
+    // for (let piece of hasMoves) {
+    //     let pieceMoves = getMoves(piece);
+    //     let king = $(`[piece = ${player}-king]`);
+    //     let kingPos = getPos(king.id);
+
+    //     isPresent = JSON.stringify(pieceMoves).includes(JSON.stringify(kingPos));
+    //     if (isPresent) {
+    //         break;
+    //     }
+    // }
+
+    let isPresent = JSON.stringify(opponentMoves).includes(JSON.stringify(kingPos));
+
+    // if (isKing) {
+    //     box.classList.add('placed');
+    //     box.setAttribute('piece', attr);
+    // }
+    // document.querySelectorAll('.box').forEach(ele => ele.classList.remove('check'));
+    if (!hasPlaced) {
+        box.classList.remove('placed');
+    };
+
+    if (selectRemove) selectedPiece.classList.add('placed');
+
+    if ((selectedPiece.id === king.id)) {
+        // console.log('selectedPiece.id===king.id');
+        if (isKing.placeRemoved) {
+            box.classList.add('placed');
+            box.setAttribute('piece', isKing.attr);
+            // console.log("isKing.placeRemoved");
+        }
+        else if (isKing.sudoattr) {
+            box.setAttribute('piece', '');
+            // console.log("isKing.sudoattr");
+        }
+        return box.classList.contains('check');
+    };
+
+    if (check && (box.id === checker.id)) {
+        // console.log('check && (box.id === checker.id)');
+        return false;
+    };
+
+
+    for (const piece of nextChecker) {
+        // console.log("const piece of nextChecker", piece);
+        if (piece.id === box.id) return false;
+    }
+
+    return isPresent;
+}
+
+
 function findCheckMoves(box) {
     let a = box.getAttribute('piece').split('-');
     let color = a[0];
@@ -173,35 +302,45 @@ function findCheckMoves(box) {
     let j = parseInt(b[2]);
 }
 
+function getPos(id) {
+    let b = id.split('-');
+    let i = parseInt(b[1]);
+    let j = parseInt(b[2]);
+    return [i, j];
+}
+
+
 function isCheck(id) {
 
     let moves = getMoves($('#' + id));
-    // console.log($('#'+id).getAttribute('piece'))
-    for (let move of moves) {
-        let box = $('#box-' + move[0] + '-' + move[1]);
-        // console.log(box)
-        // let a = box.getAttribute('piece')==player + '-king'
-        // console.log(a)
+    // console.log(JSON.stringify(moves));
+    let king = $(`[piece = ${player}-king]`);
+    let kingPos = getPos(king.id);
 
-        if (box.getAttribute('piece') === player + '-king') {
-            check = true
-            box.classList.add('error')
-            checkMoves = moves;
-            console.log(checkMoves)
-            return
-        }
+    check = JSON.stringify(moves).includes(JSON.stringify(kingPos));
 
-        if (box.getAttribute('piece') === player + '-king') {
-
-        }
+    if (check) {
+        // king.classList.add('error');
+        checker = $('#' + id);
     }
-    check = false
+
+
 }
 
 function selectPiece(box) {
     box.classList.add('selected');
     selectedPiece = box;
-    findLegalMoves(getMoves(selectedPiece));
+    // check ? findLegalMovesInCheck(box) : findLegalMoves(getMoves(selectedPiece));
+    // findLegalMoves(getMoves(selectedPiece));
+    let legalmoves = [];
+    let moves = getMoves(selectedPiece);
+
+    for (const [i, j] of moves) {
+        let bx = $('#box-' + i + '-' + j);
+        if (!isKingInCheck(bx)) legalmoves.push([i, j]);
+    }
+    // console.log(legalmoves);
+    findLegalMoves(legalmoves);
 }
 
 function removeSelection() {
@@ -216,6 +355,38 @@ function removeSuggestion() {
         e.classList.remove('show')
     });
 }
+
+
+
+function isPromoting(box, color, type) {
+    if (type !== 'pawn') return false;
+    let row = getPos(box.id)[0];
+    if ((color === 'white' && row === 0)) return true;
+    if ((color === 'black' && row === 7)) return true;
+    return false;
+}
+
+
+function promote(box, color, type) {
+    return new Promise((resolve, reject) => {
+        board.style.opacity = 0.3;
+        let promo = $('#promotion');
+        promo.style.display = 'block';
+        for (const p of promotion.pieces) {
+            let div = document.createElement('div');
+            div.setAttribute('piece', color + '-' + p);
+            div.addEventListener('click', () => {
+                promotion.promote = color + '-' + p;
+                resolve();
+                promo.innerHTML = '';
+                promo.style.display = 'none';
+                board.style.removeProperty('opacity');
+            });
+            promo.appendChild(div);
+        }
+    })
+}
+
 
 function setPiece(box, color, type) {
     box.setAttribute('piece', color + '-' + type);
@@ -237,7 +408,7 @@ function findLegalMoves(nextMoves) {
     }
 }
 
-function getMoves(box = selectedPiece) {
+function getMoves(box = selectedPiece, dia) {
     let a = box.getAttribute('piece').split('-');
     // console.log(box.getAttribute('piece'))
     let color = a[0];
@@ -260,7 +431,7 @@ function getMoves(box = selectedPiece) {
                     [-1, 0], [-2, 0], [-1, 1], [-1, -1]
                 ];
             }
-            nextMoves = getPawnMoves(i, j, color, moves);
+            nextMoves = getPawnMoves(i, j, color, moves, dia);
             break;
         case 'rook':
             moves = [
@@ -286,14 +457,14 @@ function getMoves(box = selectedPiece) {
             moves = [
                 [1, 1], [1, -1], [-1, 1], [-1, -1], [0, 1], [0, -1], [1, 0], [-1, 0]
             ];
-            nextMoves = getQueenMoves(i, j, color, moves)
+            nextMoves = getQueenMoves(i, j, color, moves);
             break;
         case 'king':
             moves = [
                 [1, 1], [1, -1], [-1, 1], [-1, -1],
                 [0, 1], [0, -1], [1, 0], [-1, 0]
             ];
-            nextMoves = getKnightMoves(i, j, color, moves);
+            nextMoves = getKingMoves(i, j, color, moves);
             break;
         default:
             break;
@@ -302,26 +473,29 @@ function getMoves(box = selectedPiece) {
     return nextMoves;
 }
 
-function getPawnMoves(i, j, color, moves) {
-    var nextMoves = [];
-    for (var index = 0; index < moves.length; index++) {
-        var I = i + moves[index][0];
-        var J = j + moves[index][1];
-        if (!outOfBounds(I, J)) {
-            var box = $('#box-' + I + '-' + J);
 
-            if (index === 0) {
+function getPawnMoves(i, j, color, moves, dia = false) {
+    let nextMoves = [];
+    for (let index = 0; index < moves.length; index++) {
+        let I = i + moves[index][0];
+        let J = j + moves[index][1];
+        if (!outOfBounds(I, J)) {
+            let box = $('#box-' + I + '-' + J);
+            if (index === 0 && !dia) {
                 if (!box.classList.contains('placed')) {
                     nextMoves.push([I, J]);
                 } else {
                     index++;
                 }
-            } else if (index === 1) {
+            } else if (index === 1 && !dia) {
                 if (((color === 'black' && i === 1) || (color === 'white' && i === 6)) && !box.classList.contains('placed')) {
                     nextMoves.push([I, J]);
                 }
             } else if (index > 1) {
-                if (box.getAttribute('piece') !== '' && box.getAttribute('piece').indexOf(color) < 0) {
+                // if (box.getAttribute('piece') !== '' && box.getAttribute('piece').indexOf(color) < 0) {
+                //     nextMoves.push([I, J]);
+                // }
+                if ((box.classList.contains('placed') && box.getAttribute('piece').indexOf(color) < 0) || dia) {
                     nextMoves.push([I, J]);
                 }
             }
@@ -364,6 +538,22 @@ function getKnightMoves(i, j, color, moves) {
         if (!outOfBounds(I, J)) {
             var box = $('#box-' + I + '-' + J);
             if (!box.classList.contains('placed') || box.getAttribute('piece').indexOf(color) < 0) {
+                nextMoves.push([I, J]);
+            }
+        }
+    }
+    return nextMoves;
+}
+
+
+function getKingMoves(i, j, color, moves) {
+    let nextMoves = [];
+    for (let move of moves) {
+        let I = i + move[0];
+        let J = j + move[1];
+        if (!outOfBounds(I, J)) {
+            let box = $('#box-' + I + '-' + J);
+            if (!box.classList.contains('placed') && !box.classList.contains('check') || box.getAttribute('piece').indexOf(color) < 0) {
                 nextMoves.push([I, J]);
             }
         }
